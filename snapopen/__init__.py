@@ -22,10 +22,7 @@ class SnapOpenPluginInstance:
 	def __init__( self, plugin, window ):
 		self._window = window
 		self._plugin = plugin
-		if pre216_version:
-			self._encoding = gedit.gedit_encoding_get_current() 
-		else:
-			self._encoding = gedit.encoding_get_current()  
+		self._encoding = gedit.encoding_get_current()  
 		self._rootdir = "file://" + os.getcwd()
 		self._show_hidden = False
 		self._liststore = None;
@@ -113,7 +110,7 @@ class SnapOpenPluginInstance:
 		if self._show_hidden:
 			filefilter = ""
 		if len(pattern) > 0:
-			cmd = "cd " + rawpath + "; find . -maxdepth 10 -depth -type f -iwholename \"*" + pattern + "*\" " + filefilter + " | grep -v \"~$\" | head -n " + repr(max_result + 1) + " | sort"
+			cmd = "cd " + rawpath + "; find . -maxdepth 10 -depth -type f -ipath \"*" + pattern + "*\" " + filefilter + " | grep -v \"~$\" | head -n " + repr(max_result + 1) + " | sort 2>/dev/null"
 			self._snapopen_window.set_title("Searching ... ")
 		else:
 			self._snapopen_window.set_title("Enter pattern ... ")	
@@ -185,10 +182,7 @@ class SnapOpenPluginInstance:
 	#opens (or switches to) the given file
 	def _open_file( self, filename ):
  		uri = self._rootdir + "/" + filename
-		if pre216_version:
-			tab = self.old_get_tab_from_uri(self._window, uri)
-		else:
-			tab = self._window.get_tab_from_uri(uri) 
+		tab = self._window.get_tab_from_uri(uri) 
 		if tab == None:
 			tab = self._window.create_tab_from_uri( uri, self._encoding, 0, False, False )
 		self._window.set_active_tab( tab )
