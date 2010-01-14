@@ -21,11 +21,6 @@ This plugin uses 'find' and 'grep' tools. You can modify the actual
 search command by editing snapopen.py and look for the line starting with 
 	cmd = "find ...
 
-For more information, visit http://www.upperbound.net/upperbound/show/Linux+tools
-
-Known issues:
-* Stalls if there are many files matched.
-* Harmless broken pipe outputs with too many hits.
-* 'find' command on every keystroke (not time-limited)
-* Hard max-depth and 10 directories in 'find' command
+For more information, visit my blog: http://www.upperbound.net/
+Or the project page: http://github.com/MadsBuus/gedit-snapopen-plugin
 
