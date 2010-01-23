@@ -21,7 +21,7 @@ This plugin uses 'find' and 'grep' tools. You can modify the actual
 search command by editing snapopen.py and look for the line starting with 
 	cmd = "find ...
 
-For more information, visit http://www.upperbound.net/upperbound/show/Linux+tools
+For more information, visit http://www.upperbound.net/snap-open
 
 Known issues:
 * Stalls if there are many files matched.
