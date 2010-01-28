@@ -5,11 +5,12 @@ pygtk.require('2.0')
 import os, os.path, gobject
 
 max_result = 50
+app_string = "Snap open"
 
 ui_str="""<ui>
 <menubar name="MenuBar">
-	<menu name="SnapOpenMenu" action="SnapOpenMenuAction">
-		<placeholder name="SnapOpen Options">
+	<menu name="SearchMenu" action="Search">
+		<placeholder name="SearchOps_7">
 			<menuitem name="SnapOpen" action="SnapOpenAction"/>
 		</placeholder>
 	</menu>
@@ -45,7 +46,7 @@ class SnapOpenPluginInstance:
 		self._action_group = gtk.ActionGroup( "SnapOpenPluginActions" )
 		snapopen_menu_action = gtk.Action( name="SnapOpenMenuAction", label="Snap", tooltip="Snap tools", stock_id=None )
 		self._action_group.add_action( snapopen_menu_action )
-		snapopen_action = gtk.Action( name="SnapOpenAction", label="Open...\t", tooltip="Open a file", stock_id=gtk.STOCK_OPEN )
+		snapopen_action = gtk.Action( name="SnapOpenAction", label="Snap Open...\t", tooltip="Open file by autocomplete...", stock_id=gtk.STOCK_JUMP_TO )
 		snapopen_action.connect( "activate", lambda a: self.on_snapopen_action() )
 		self._action_group.add_action_with_accel( snapopen_action, "<Ctrl><Alt>o" )
 		manager.insert_action_group( self._action_group, 0 )
@@ -106,11 +107,13 @@ class SnapOpenPluginInstance:
 		#modify lines below as needed, these defaults work pretty well
 		rawpath = self._rootdir.replace("file://", "")
 		filefilter = " | grep -s -v \"/\.\""
+		imagefilter = " ! -iname '*.jpg' ! -iname '*.jpeg' ! -iname '*.gif' ! -iname '*.png' ! -iname '*.psd' ! -iname '*.tif' "
 		cmd = ""
 		if self._show_hidden:
 			filefilter = ""
 		if len(pattern) > 0:
-			cmd = "cd " + rawpath + "; find . -maxdepth 10 -depth -type f -ipath \"*" + pattern + "*\" " + filefilter + " | grep -v \"~$\" | head -n " + repr(max_result + 1) + " | sort 2>/dev/null"
+			# To search by name
+			cmd = "cd " + rawpath + "; find . -maxdepth 10 -depth -type f -ipath \"*" + pattern + "*\" " + imagefilter + filefilter + " | grep -v \"~$\" | head -n " + repr(max_result + 1) + " | sort 2>/dev/null"
 			self._snapopen_window.set_title("Searching ... ")
 		else:
 			self._snapopen_window.set_title("Enter pattern ... ")	
@@ -143,14 +146,14 @@ class SnapOpenPluginInstance:
 		fbroot = self.get_filebrowser_root()
 		if fbroot != "" and fbroot is not None:
 			self._rootdir = fbroot
-			self._snapopen_window.set_title("Snap open (Filebrowser integration)")
+			self._snapopen_window.set_title(app_string + " (File Browser root)")
 		else:
 			eddtroot = self.get_eddt_root()
 			if eddtroot != "" and eddtroot is not None:
 				self._rootdir = eddtroot
-				self._snapopen_window.set_title("Snap open (EDDT integration)")
+				self._snapopen_window.set_title(app_string + " (EDDT integration)")
 			else:
-				self._snapopen_window.set_title("Snap open (cwd): " + self._rootdir)		
+				self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)		
 		self._snapopen_window.show()
 		self._glade_entry_name.select_region(0,-1)
 		self._glade_entry_name.grab_focus()

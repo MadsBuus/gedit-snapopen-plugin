@@ -1,0 +1,9 @@
+Gedit Snap Open Plugin
+Copyright (C) 2006-2010 Mads Buus Jensen <online@buus.net>
+
+Known issues:
+
+* Stalls if there are many files matched.
+* Harmless broken pipe outputs with too many hits.
+* 'find' command on every keystroke (not time-limited)
+* Hard max-depth and 10 directories in 'find' command
