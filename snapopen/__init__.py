@@ -3,6 +3,7 @@ import gconf
 import pygtk
 pygtk.require('2.0')
 import os, os.path, gobject
+from urllib import pathname2url
 
 max_result = 50
 app_string = "Snap open"
@@ -184,7 +185,7 @@ class SnapOpenPluginInstance:
 	
 	#opens (or switches to) the given file
 	def _open_file( self, filename ):
- 		uri = self._rootdir + "/" + filename
+ 		uri = self._rootdir + "/" + pathname2url(filename)
 		tab = self._window.get_tab_from_uri(uri) 
 		if tab == None:
 			tab = self._window.create_tab_from_uri( uri, self._encoding, 0, False, False )
