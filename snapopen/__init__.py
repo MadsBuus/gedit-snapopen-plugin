@@ -29,6 +29,7 @@ class SnapOpenPluginInstance:
 		self._show_hidden = False
 		self._liststore = None;
 		self._last_pattern = ""
+		self._delay = None
 		self._init_glade()
 		self._insert_menu()
 
@@ -74,7 +75,7 @@ class SnapOpenPluginInstance:
 		self._snapopen_glade.get_widget( "cancel_button" ).connect( "clicked", lambda a: self._snapopen_window.hide())
 		#setup entry field
 		self._glade_entry_name = self._snapopen_glade.get_widget( "entry_name" )
-		self._glade_entry_name.connect("key-release-event", self.on_pattern_entry)		
+		self._glade_entry_name.connect("key-release-event", self.on_pattern_entry_delay)		
 		#setup list field
 		self._hit_list = self._snapopen_glade.get_widget( "hit_list" )
 		self._hit_list.connect("select-cursor-row", self.on_select_from_list)
@@ -98,12 +99,26 @@ class SnapOpenPluginInstance:
 	def on_select_from_list(self, widget, event):
 		self.open_selected_item(event)
 
-	#keyboard event on entry field
-	def on_pattern_entry( self, widget, event ):
-		oldtitle = self._snapopen_window.get_title().replace(" * too many hits", "")
+	def on_pattern_entry_delay(self, widget, event):
+		if self._delay:
+			gobject.source_remove(self._delay)
+			self._delay = None
+
 		if event.keyval == gtk.keysyms.Return:
 			self.open_selected_item( event )
 			return
+
+		self._delay = gobject.timeout_add(250, self.on_pattern_entry_delay_callback, widget)
+
+	def on_pattern_entry_delay_callback(self, widget):
+		self.on_pattern_entry(widget)
+		self._delay = None
+		return False
+
+	#keyboard event on entry field
+	def on_pattern_entry( self, widget ):
+		oldtitle = self._snapopen_window.get_title().replace(" * too many hits", "")
+
 		pattern = self._glade_entry_name.get_text()
 		pattern = pattern.replace(" ","*")
 		
