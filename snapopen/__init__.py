@@ -28,6 +28,7 @@ class SnapOpenPluginInstance:
 		self._rootdir = "file://" + os.getcwd()
 		self._show_hidden = False
 		self._liststore = None;
+		self._last_pattern = ""
 		self._init_glade()
 		self._insert_menu()
 
@@ -105,6 +106,12 @@ class SnapOpenPluginInstance:
 			return
 		pattern = self._glade_entry_name.get_text()
 		pattern = pattern.replace(" ","*")
+		
+		if pattern == self._last_pattern:
+			return
+
+		self._last_pattern = pattern
+		
 		#modify lines below as needed, these defaults work pretty well
 		rawpath = self._rootdir.replace("file://", "")
 		filefilter = " | grep -s -v \"/\.\""
