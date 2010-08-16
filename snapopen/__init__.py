@@ -132,7 +132,7 @@ class SnapOpenPluginInstance:
 		#modify lines below as needed, these defaults work pretty well
 		rawpath = self._rootdir.replace("file://", "")
 		filefilter = " | grep -s -v \"/\.\""
-		imagefilter = " ! -iname '*.jpg' ! -iname '*.jpeg' ! -iname '*.gif' ! -iname '*.png' ! -iname '*.psd' ! -iname '*.tif' ! -iname '*.pyc' "
+		imagefilter = " ! -iname '*.jpg' ! -iname '*.jpeg' ! -iname '*.gif' ! -iname '*.png' ! -iname '*.psd' ! -iname '*.tif' ! -iname '*.pyc' ! -iname '*.class'"
 		cmd = ""
 		if self._show_hidden:
 			filefilter = ""
