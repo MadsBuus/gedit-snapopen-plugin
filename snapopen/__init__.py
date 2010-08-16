@@ -104,6 +104,8 @@ class SnapOpenPluginInstance:
 			self.open_selected_item( event )
 			return
 		pattern = self._glade_entry_name.get_text()
+		if len(pattern) < 3:
+			return
 		pattern = pattern.replace(" ","*")
 		#modify lines below as needed, these defaults work pretty well
 		rawpath = self._rootdir.replace("file://", "")
