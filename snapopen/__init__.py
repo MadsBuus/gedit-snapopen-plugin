@@ -82,6 +82,8 @@ class SnapOpenPluginInstance:
 		self._hit_list.connect("select-cursor-row", self.on_select_from_list)
 		self._hit_list.connect("button_press_event", self.on_list_mouse)
 		self._liststore = gtk.ListStore(str, str)
+		self._liststore.set_sort_column_id(0, gtk.SORT_ASCENDING)
+
 		self._hit_list.set_model(self._liststore)
 		column = gtk.TreeViewColumn("Name" , gtk.CellRendererText(), text=0)
 		column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
@@ -113,7 +115,7 @@ class SnapOpenPluginInstance:
 			filefilter = ""
 		if len(pattern) > 0:
 			# To search by name
-			cmd = "grep -m %d %s %s | sort 2> /dev/null" % (max_result, pattern, self._tmpfile)
+			cmd = "grep -m %d %s %s 2> /dev/null" % (max_result, pattern, self._tmpfile)
 			self._snapopen_window.set_title("Searching ... ")
 		else:
 			self._snapopen_window.set_title("Enter pattern ... ")	
