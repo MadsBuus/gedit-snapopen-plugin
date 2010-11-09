@@ -143,6 +143,8 @@ class SnapOpenPluginInstance:
 
 	#on menuitem activation (incl. shortcut)
 	def on_snapopen_action( self ):
+		self._init_glade()
+
 		fbroot = self.get_filebrowser_root()
 		if fbroot != "" and fbroot is not None:
 			self._rootdir = fbroot
