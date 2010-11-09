@@ -4,6 +4,7 @@ import pygtk
 pygtk.require('2.0')
 import os, os.path, gobject
 from urllib import pathname2url
+import tempfile
 
 max_result = 50
 app_string = "Snap open"
@@ -26,6 +27,7 @@ class SnapOpenPluginInstance:
 		self._plugin = plugin
 		self._encoding = gedit.encoding_get_current()  
 		self._rootdir = "file://" + os.getcwd()
+		self._tmpfile = os.path.join(tempfile.gettempdir(), 'snapopen.%s.%s' % (os.getuid(),os.getpid()))
 		self._show_hidden = False
 		self._liststore = None;
 		self._init_glade()
@@ -37,6 +39,7 @@ class SnapOpenPluginInstance:
 		self._window = None
 		self._plugin = None
 		self._liststore = None;
+		os.popen('rm %s &> /dev/null' % (self._tmpfile))
 
 	def update_ui( self ):
 		return
@@ -107,16 +110,12 @@ class SnapOpenPluginInstance:
 		if len(pattern) < 3:
 			return
 		pattern = pattern.replace(" ","*")
-		#modify lines below as needed, these defaults work pretty well
-		rawpath = self._rootdir.replace("file://", "")
-		filefilter = " | grep -s -v \"/\.\""
-		imagefilter = " ! -iname '*.jpg' ! -iname '*.jpeg' ! -iname '*.gif' ! -iname '*.png' ! -iname '*.psd' ! -iname '*.tif' ! -iname '*.pyc' "
 		cmd = ""
 		if self._show_hidden:
 			filefilter = ""
 		if len(pattern) > 0:
 			# To search by name
-			cmd = "cd " + rawpath + "; find . -maxdepth 10 -depth -type f -ipath \"*" + pattern + "*\" " + imagefilter + filefilter + " | grep -v \"~$\" | head -n " + repr(max_result + 1) + " | sort 2>/dev/null"
+			cmd = "grep -m %d %s %s | sort 2> /dev/null" % (max_result, pattern, self._tmpfile)
 			self._snapopen_window.set_title("Searching ... ")
 		else:
 			self._snapopen_window.set_title("Enter pattern ... ")	
@@ -156,7 +155,13 @@ class SnapOpenPluginInstance:
 				self._rootdir = eddtroot
 				self._snapopen_window.set_title(app_string + " (EDDT integration)")
 			else:
-				self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)		
+				self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)	
+
+		# cache the file list in the background
+		#modify lines below as needed, these defaults work pretty well
+		imagefilter = " ! -iname '*.jpg' ! -iname '*.jpeg' ! -iname '*.gif' ! -iname '*.png' ! -iname '*.psd' ! -iname '*.tif' ! -iname '*.pyc' "
+		os.popen("cd %s; find . %s > %s 2> /dev/null &" % (self._rootdir.replace("file://", ""), imagefilter, self._tmpfile))
+
 		self._snapopen_window.show()
 		self._glade_entry_name.select_region(0,-1)
 		self._glade_entry_name.grab_focus()
