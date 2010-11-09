@@ -107,8 +107,6 @@ class SnapOpenPluginInstance:
 			self.open_selected_item( event )
 			return
 		pattern = self._glade_entry_name.get_text()
-		if len(pattern) < 3:
-			return
 		pattern = pattern.replace(" ","*")
 		cmd = ""
 		if self._show_hidden:
