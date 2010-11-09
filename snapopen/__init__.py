@@ -163,7 +163,7 @@ class SnapOpenPluginInstance:
 		#modify lines below as needed, these defaults work pretty well
 		imagefilter = " ! -iname '*.jpg' ! -iname '*.jpeg' ! -iname '*.gif' ! -iname '*.png' ! -iname '*.psd' ! -iname '*.tif' ! -iname '*.pyc' "
 		dirfilter = " ! -path '*.svn*' ! -path '*.git*' "
-		os.popen("cd %s; find . %s > %s 2> /dev/null &" % (self._rootdir.replace("file://", ""), imagefilter + dirfilter, self._tmpfile))
+		os.popen("cd %s; find . -type f %s > %s 2> /dev/null &" % (self._rootdir.replace("file://", ""), imagefilter + dirfilter, self._tmpfile))
 
 		self._snapopen_window.show()
 		self._glade_entry_name.select_region(0,-1)
