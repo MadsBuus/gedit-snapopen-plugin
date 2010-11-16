@@ -109,13 +109,13 @@ class SnapOpenPluginInstance:
 			self.open_selected_item( event )
 			return
 		pattern = self._glade_entry_name.get_text()
-		pattern = pattern.replace(" ","*")
+		pattern = pattern.replace(" ",".*")
 		cmd = ""
 		if self._show_hidden:
 			filefilter = ""
 		if len(pattern) > 0:
 			# To search by name
-			cmd = "grep -m %d %s %s 2> /dev/null" % (max_result, pattern, self._tmpfile)
+			cmd = "grep -m %d -e '%s' %s 2> /dev/null" % (max_result, pattern, self._tmpfile)
 			self._snapopen_window.set_title("Searching ... ")
 		else:
 			self._snapopen_window.set_title("Enter pattern ... ")	
