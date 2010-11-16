@@ -1,5 +1,5 @@
 Gedit Snap Open Plugin
-Copyright (C) 2006-2010 Mads Buus Jensen <online@buus.net>
+Copyright (C) 2006-2010 Mads Buus Westmark <online@buus.net>
 
 see CHANGELOG for details
 
@@ -18,14 +18,8 @@ and then hit enter to open that file.
 If the file is already open, Gedit will switch to the proper tab.
 Escape will close the dialog.
 This plugin uses 'find' and 'grep' tools. You can modify the actual
-search command by editing snapopen.py and look for the line starting with 
+search command by editing snapopen.py and look for lines around 
 	cmd = "find ...
-
-Known issues:
-* Stalls if there are many files matched.
-* Harmless broken pipe outputs with too many hits.
-* 'find' command on every keystroke (not time-limited)
-* Hard max-depth and 10 directories in 'find' command
 
 For more information, visit my blog: http://www.upperbound.net/
 Or the project page: http://github.com/MadsBuus/gedit-snapopen-plugin

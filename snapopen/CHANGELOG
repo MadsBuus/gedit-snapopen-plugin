@@ -1,7 +1,20 @@
 Gedit Snap Open Plugin
-Copyright (C) 2008 Mads Buus Jensen <online@buus.net>
+Copyright (C) 2008 Mads Buus Westmark <online@buus.net>
 
 Changelog
+
+Version 1.4 (November 2010)
+* Merged in Scotts changes from Github THANKS, SCOTT!
+From Scott Bowers (https://github.com/sbbowers)
+* Store the find results in a temporary file
+* Grep on the temp file
+* Run the find command in the background, allowing you to search immediately
+* The "X" close button on the UI titlebar would destroy the giade window; reinitialize on activation
+* Added directory filtering for common repositories
+* Removed three character search limit
+* Sort by filename rather than full path.
+* Sorts in python rather than a separate sort process
+* Details: https://github.com/MadsBuus/gedit-snapopen-plugin/pull/7#commits-pushed-193ca1c
 
 Version 1.3 (December 2009)
 * Update the CHANGELOG, VERSION and fix the broken project url.
