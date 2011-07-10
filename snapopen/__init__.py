@@ -25,7 +25,7 @@ class SnapOpenPluginInstance:
 	def __init__( self, plugin, window ):
 		self._window = window
 		self._plugin = plugin
-		self._encoding = gedit.encoding_get_current()  
+		self._encoding = gedit.encoding_get_current()
 		self._rootdir = "file://" + os.getcwd()
 		self._tmpfile = os.path.join(tempfile.gettempdir(), 'snapopen.%s.%s' % (os.getuid(),os.getpid()))
 		self._show_hidden = False
@@ -68,15 +68,15 @@ class SnapOpenPluginInstance:
 	def _init_glade( self ):
 		self._snapopen_glade = gtk.glade.XML( os.path.dirname( __file__ ) + "/snapopen.glade" )
 		#setup window
-		self._snapopen_window = self._snapopen_glade.get_widget( "SnapOpenWindow" )		
-		self._snapopen_window.connect("key-release-event", self.on_window_key)		
+		self._snapopen_window = self._snapopen_glade.get_widget( "SnapOpenWindow" )
+		self._snapopen_window.connect("key-release-event", self.on_window_key)
 		self._snapopen_window.set_transient_for(self._window)
 		#setup buttons
 		self._snapopen_glade.get_widget( "ok_button" ).connect( "clicked", self.open_selected_item )
 		self._snapopen_glade.get_widget( "cancel_button" ).connect( "clicked", lambda a: self._snapopen_window.hide())
 		#setup entry field
 		self._glade_entry_name = self._snapopen_glade.get_widget( "entry_name" )
-		self._glade_entry_name.connect("key-release-event", self.on_pattern_entry)		
+		self._glade_entry_name.connect("key-release-event", self.on_pattern_entry)
 		#setup list field
 		self._hit_list = self._snapopen_glade.get_widget( "hit_list" )
 		self._hit_list.connect("select-cursor-row", self.on_select_from_list)
@@ -96,7 +96,7 @@ class SnapOpenPluginInstance:
 	#mouse event on list
 	def on_list_mouse( self, widget, event ):
 		if event.type == gtk.gdk._2BUTTON_PRESS:
-			self.open_selected_item( event )			
+			self.open_selected_item( event )
 
 	#key selects from list (passthrough 3 args)
 	def on_select_from_list(self, widget, event):
@@ -118,7 +118,7 @@ class SnapOpenPluginInstance:
 			cmd = "grep -m %d -e '%s' %s 2> /dev/null" % (max_result, pattern, self._tmpfile)
 			self._snapopen_window.set_title("Searching ... ")
 		else:
-			self._snapopen_window.set_title("Enter pattern ... ")	
+			self._snapopen_window.set_title("Enter pattern ... ")
 		#print cmd
 
 		self._liststore.clear()
@@ -126,7 +126,7 @@ class SnapOpenPluginInstance:
 		hits = os.popen(cmd).readlines()
 		for file in hits:
 			file = file.rstrip().replace("./", "") #remove cwd prefix
-			name = os.path.basename(file)			
+			name = os.path.basename(file)
 			self._liststore.append([name, file])
 			if maxcount > max_result:
 				break
@@ -134,7 +134,7 @@ class SnapOpenPluginInstance:
 		if maxcount > max_result:
 			oldtitle = oldtitle + " * too many hits"
 		self._snapopen_window.set_title(oldtitle)
-				
+
 		selected = []
 		self._hit_list.get_selection().selected_foreach(self.foreach, selected)
 
@@ -157,7 +157,7 @@ class SnapOpenPluginInstance:
 				self._rootdir = eddtroot
 				self._snapopen_window.set_title(app_string + " (EDDT integration)")
 			else:
-				self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)	
+				self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)
 
 		# cache the file list in the background
 		#modify lines below as needed, these defaults work pretty well
@@ -184,7 +184,7 @@ class SnapOpenPluginInstance:
 		for selected_file in	selected:
 			self._open_file ( selected_file )
 		self._snapopen_window.hide()
-	
+
 	#gedit < 2.16 version (get_tab_from_uri)
 	def old_get_tab_from_uri(self, window, uri):
           docs = window.get_documents()
@@ -192,11 +192,11 @@ class SnapOpenPluginInstance:
             if doc.get_uri() == uri:
               return gedit.tab_get_from_document(doc)
           return None
-	
+
 	#opens (or switches to) the given file
 	def _open_file( self, filename ):
  		uri = self._rootdir + "/" + pathname2url(filename)
-		tab = self._window.get_tab_from_uri(uri) 
+		tab = self._window.get_tab_from_uri(uri)
 		if tab == None:
 			tab = self._window.create_tab_from_uri( uri, self._encoding, 0, False, False )
 		self._window.set_active_tab( tab )
@@ -231,7 +231,7 @@ class SnapOpenPluginInstance:
 		  if fbfilter.find("hidden") == -1:
 		  	self._show_hidden = True
 		  else:
-		  	self._show_hidden = False		  	
+		  	self._show_hidden = False
 		  return val.get_string()
 
 # STANDARD PLUMMING
