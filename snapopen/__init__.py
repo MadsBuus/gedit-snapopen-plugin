@@ -1,4 +1,4 @@
-from gi.repository import GObject, Gedit, Gtk, GConf
+from gi.repository import GObject, Gedit, Gtk, Gio, Gdk
 import os, os.path
 from urllib import pathname2url
 import tempfile
@@ -22,12 +22,11 @@ class SnapOpenPluginInstance:
     def __init__( self, plugin, window ):
         self._window = window
         self._plugin = plugin
-        self._encoding = gedit.encoding_get_current()
         self._rootdir = "file://" + os.getcwd()
         self._tmpfile = os.path.join(tempfile.gettempdir(), 'snapopen.%s.%s' % (os.getuid(),os.getpid()))
         self._show_hidden = False
         self._liststore = None;
-        self._init_glade()
+        self._init_ui()
         self._insert_menu()
 
     def deactivate( self ):
@@ -44,10 +43,10 @@ class SnapOpenPluginInstance:
     # MENU STUFF
     def _insert_menu( self ):
         manager = self._window.get_ui_manager()
-        self._action_group = gtk.ActionGroup( "SnapOpenPluginActions" )
-        snapopen_menu_action = gtk.Action( name="SnapOpenMenuAction", label="Snap", tooltip="Snap tools", stock_id=None )
+        self._action_group = Gtk.ActionGroup( "SnapOpenPluginActions" )
+        snapopen_menu_action = Gtk.Action( name="SnapOpenMenuAction", label="Snap", tooltip="Snap tools", stock_id=None )
         self._action_group.add_action( snapopen_menu_action )
-        snapopen_action = gtk.Action( name="SnapOpenAction", label="Snap Open...\t", tooltip="Open file by autocomplete...", stock_id=gtk.STOCK_JUMP_TO )
+        snapopen_action = Gtk.Action( name="SnapOpenAction", label="Snap Open...\t", tooltip="Open file by autocomplete...", stock_id='JUMP_TO' )
         snapopen_action.connect( "activate", lambda a: self.on_snapopen_action() )
         self._action_group.add_action_with_accel( snapopen_action, "<Ctrl><Alt>o" )
         manager.insert_action_group( self._action_group, 0 )
@@ -62,33 +61,39 @@ class SnapOpenPluginInstance:
         manager.ensure_update()
 
     # UI DIALOGUES
-    def _init_glade( self ):
-        self._snapopen_glade = gtk.glade.XML( os.path.dirname( __file__ ) + "/snapopen.glade" )
+    def _init_ui( self ):
+        filename = os.path.dirname( __file__ ) + "/snapopen.ui"
+        self._builder = Gtk.Builder()
+        self._builder.add_from_file(filename)
+
         #setup window
-        self._snapopen_window = self._snapopen_glade.get_widget( "SnapOpenWindow" )
+        self._snapopen_window = self._builder.get_object('SnapOpenWindow')
         self._snapopen_window.connect("key-release-event", self.on_window_key)
         self._snapopen_window.set_transient_for(self._window)
+
         #setup buttons
-        self._snapopen_glade.get_widget( "ok_button" ).connect( "clicked", self.open_selected_item )
-        self._snapopen_glade.get_widget( "cancel_button" ).connect( "clicked", lambda a: self._snapopen_window.hide())
+        self._builder.get_object( "ok_button" ).connect( "clicked", self.open_selected_item )
+        self._builder.get_object( "cancel_button" ).connect( "clicked", lambda a: self._snapopen_window.hide())
+
         #setup entry field
-        self._glade_entry_name = self._snapopen_glade.get_widget( "entry_name" )
+        self._glade_entry_name = self._builder.get_object( "entry_name" )
         self._glade_entry_name.connect("key-release-event", self.on_pattern_entry)
+
         #setup list field
-        self._hit_list = self._snapopen_glade.get_widget( "hit_list" )
+        self._hit_list = self._builder.get_object( "hit_list" )
         self._hit_list.connect("select-cursor-row", self.on_select_from_list)
         self._hit_list.connect("button_press_event", self.on_list_mouse)
-        self._liststore = gtk.ListStore(str, str)
-        self._liststore.set_sort_column_id(0, gtk.SORT_ASCENDING)
+        self._liststore = Gtk.ListStore(str, str)
+        self._liststore.set_sort_column_id(0, Gtk.SortType.ASCENDING)
 
         self._hit_list.set_model(self._liststore)
-        column = gtk.TreeViewColumn("Name" , gtk.CellRendererText(), text=0)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        column2 = gtk.TreeViewColumn("File", gtk.CellRendererText(), text=1)
-        column2.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        column = Gtk.TreeViewColumn("Name" , Gtk.CellRendererText(), text=0)
+        column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
+        column2 = Gtk.TreeViewColumn("File", Gtk.CellRendererText(), text=1)
+        column2.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
         self._hit_list.append_column(column)
         self._hit_list.append_column(column2)
-        self._hit_list.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        self._hit_list.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
 
     #mouse event on list
     def on_list_mouse( self, widget, event ):
@@ -102,7 +107,8 @@ class SnapOpenPluginInstance:
     #keyboard event on entry field
     def on_pattern_entry( self, widget, event ):
         oldtitle = self._snapopen_window.get_title().replace(" * too many hits", "")
-        if event.keyval == gtk.keysyms.Return:
+
+        if event.keyval == Gdk.KEY_Return:
             self.open_selected_item( event )
             return
         pattern = self._glade_entry_name.get_text()
@@ -142,19 +148,15 @@ class SnapOpenPluginInstance:
 
     #on menuitem activation (incl. shortcut)
     def on_snapopen_action( self ):
-        self._init_glade()
+        self._init_ui()
 
         fbroot = self.get_filebrowser_root()
+
         if fbroot != "" and fbroot is not None:
             self._rootdir = fbroot
             self._snapopen_window.set_title(app_string + " (File Browser root)")
         else:
-            eddtroot = self.get_eddt_root()
-            if eddtroot != "" and eddtroot is not None:
-                self._rootdir = eddtroot
-                self._snapopen_window.set_title(app_string + " (EDDT integration)")
-            else:
-                self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)
+            self._snapopen_window.set_title(app_string + " (Working dir): " + self._rootdir)
 
         # cache the file list in the background
         #modify lines below as needed, these defaults work pretty well
@@ -168,7 +170,7 @@ class SnapOpenPluginInstance:
 
     #on any keyboard event in main window
     def on_window_key( self, widget, event ):
-        if event.keyval == gtk.keysyms.Escape:
+        if event.keyval == Gdk.KEY_Escape:
             self._snapopen_window.hide()
 
     def foreach(self, model, path, iter, selected):
@@ -192,44 +194,29 @@ class SnapOpenPluginInstance:
 
     #opens (or switches to) the given file
     def _open_file( self, filename ):
-        uri = self._rootdir + "/" + pathname2url(filename)
-        tab = self._window.get_tab_from_uri(uri)
+        uri      = self._rootdir + "/" + pathname2url(filename)
+        gio_file = Gio.file_new_for_uri(uri)
+        tab = self._window.get_tab_from_location(gio_file)
         if tab == None:
-            tab = self._window.create_tab_from_uri( uri, self._encoding, 0, False, False )
+            tab = self._window.create_tab_from_location( gio_file, None, 0, 0, False, False )
         self._window.set_active_tab( tab )
-
-# EDDT integration
-    def get_eddt_root(self):
-        base = u'/apps/gedit-2/plugins/eddt'
-        client = gconf.client_get_default()
-        client.add_dir(base, gconf.CLIENT_PRELOAD_NONE)
-        path = os.path.join(base, u'repository')
-        val = client.get(path)
-        if val is not None:
-            return val.get_string()
 
 # FILEBROWSER integration
     def get_filebrowser_root(self):
-        base = u'/apps/gedit-2/plugins/filebrowser/on_load'
-        client = gconf.client_get_default()
-        client.add_dir(base, gconf.CLIENT_PRELOAD_NONE)
-        path = os.path.join(base, u'virtual_root')
-        val = client.get(path)
-        if val is not None:
-            #also read hidden files setting
-            base = u'/apps/gedit-2/plugins/filebrowser'
-            client = gconf.client_get_default()
-            client.add_dir(base, gconf.CLIENT_PRELOAD_NONE)
-            path = os.path.join(base, u'filter_mode')
-            try:
-                fbfilter = client.get(path).get_string()
-            except AttributeError:
-                fbfilter = "hidden"
-            if fbfilter.find("hidden") == -1:
-                self._show_hidden = True
-            else:
+        base = u'org.gnome.gedit.plugins.filebrowser'
+
+        settings = Gio.Settings.new(base)
+        root = settings.get_string('virtual-root')
+
+        if root is not None:
+            filter_mode = settings.get_strv('filter-mode')
+
+            if 'hide-hidden' in filter_mode:
                 self._show_hidden = False
-            return val.get_string()
+            else:
+                self._show_hidden = True
+
+            return root
 
 # STANDARD PLUMMING
 class SnapOpenPlugin(GObject.Object, Gedit.WindowActivatable):
@@ -248,11 +235,11 @@ class SnapOpenPlugin(GObject.Object, Gedit.WindowActivatable):
         self.window.set_data( self.DATA_TAG, instance )
 
     def do_activate( self ):
-        self._set_instance( self.window, SnapOpenPluginInstance( self, self.window ) )
+        self._set_instance( SnapOpenPluginInstance( self, self.window ) )
 
     def do_deactivate( self ):
-        self._get_instance( self.window ).deactivate()
-        self._set_instance( self.window, None )
+        self._get_instance().deactivate()
+        self._set_instance( None )
 
     def do_update_ui( self ):
-        self._get_instance( self.window ).update_ui()
+        self._get_instance().update_ui()
