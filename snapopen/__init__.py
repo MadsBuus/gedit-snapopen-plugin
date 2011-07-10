@@ -232,24 +232,27 @@ class SnapOpenPluginInstance:
             return val.get_string()
 
 # STANDARD PLUMMING
-class SnapOpenPlugin( gedit.Plugin ):
+class SnapOpenPlugin(GObject.Object, Gedit.WindowActivatable):
+    __gtype_name__ = "SnapOpenPlugin"
     DATA_TAG = "SnapOpenPluginInstance"
 
-    def __init__( self ):
-        gedit.Plugin.__init__( self )
+    window = GObject.property(type=Gedit.Window)
 
-    def _get_instance( self, window ):
-        return window.get_data( self.DATA_TAG )
+    def __init__(self):
+        GObject.Object.__init__(self)
 
-    def _set_instance( self, window, instance ):
-        window.set_data( self.DATA_TAG, instance )
+    def _get_instance( self ):
+        return self.window.get_data( self.DATA_TAG )
 
-    def activate( self, window ):
-        self._set_instance( window, SnapOpenPluginInstance( self, window ) )
+    def _set_instance( self, instance ):
+        self.window.set_data( self.DATA_TAG, instance )
 
-    def deactivate( self, window ):
-        self._get_instance( window ).deactivate()
-        self._set_instance( window, None )
+    def do_activate( self ):
+        self._set_instance( self.window, SnapOpenPluginInstance( self, self.window ) )
 
-    def update_ui( self, window ):
-        self._get_instance( window ).update_ui()
+    def do_deactivate( self ):
+        self._get_instance( self.window ).deactivate()
+        self._set_instance( self.window, None )
+
+    def do_update_ui( self ):
+        self._get_instance( self.window ).update_ui()
