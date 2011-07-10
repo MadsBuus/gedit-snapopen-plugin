@@ -8,8 +8,8 @@ app_string = "Snap open"
 
 ui_str="""<ui>
 <menubar name="MenuBar">
-    <menu name="SearchMenu" action="Search">
-        <placeholder name="SearchOps_7">
+    <menu name="FileMenu" action="File">
+        <placeholder name="FileOps_2">
             <menuitem name="SnapOpen" action="SnapOpenAction"/>
         </placeholder>
     </menu>
@@ -44,15 +44,14 @@ class SnapOpenPluginInstance:
     def _insert_menu( self ):
         manager = self._window.get_ui_manager()
         self._action_group = Gtk.ActionGroup( "SnapOpenPluginActions" )
-        snapopen_menu_action = Gtk.Action( name="SnapOpenMenuAction", label="Snap", tooltip="Snap tools", stock_id=None )
-        self._action_group.add_action( snapopen_menu_action )
-        snapopen_action = Gtk.Action( name="SnapOpenAction", label="Snap Open...\t", tooltip="Open file by autocomplete...", stock_id='JUMP_TO' )
-        snapopen_action.connect( "activate", lambda a: self.on_snapopen_action() )
-        self._action_group.add_action_with_accel( snapopen_action, "<Ctrl><Alt>o" )
-        manager.insert_action_group( self._action_group, 0 )
-        self._ui_id = manager.new_merge_id()
-        manager.add_ui_from_string( ui_str )
-        manager.ensure_update()
+        self._action_group.add_actions([
+            ("SnapOpenAction", Gtk.STOCK_OPEN, "Snap open...",
+             '<Ctrl><Alt>O', "Open file by autocomplete",
+             lambda a, b: self.on_snapopen_action())
+        ])
+
+        manager.insert_action_group(self._action_group)
+        self._ui_id = manager.add_ui_from_string(ui_str)
 
     def _remove_menu( self ):
         manager = self._window.get_ui_manager()
