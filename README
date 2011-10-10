@@ -1,26 +1,28 @@
 Gedit Snap Open Plugin
-Copyright (C) 2006-2010 Mads Buus Westmark <online@buus.net>
+Copyright (C) 2006-2011 Mads Buus Westmark <online@buus.net>
 
-see CHANGELOG for details
+This plugin is for Gnome 3.
+The old gnome2 version is available as a git tag.
+
+see INSTALL and CHANGELOG for details
 
 This plugin makes it much more convenient to open related source files.
 Inspired by TextMate for Mac, this plugin will use regular expressions
-to quickly search through files as you type. 
+to quickly search through files as you type.
 Press CTRL+ALT+o (letter o) to open dialog (On MAC, the shortcut is alt-cmd-o)
 
 Filebrowser integration: if the 'file browser' integration is enabled
 Snap Open will use the filebrowsers 'root' dir as top level dir when searching
-for files to open. if filebrowser is NOT used,  The files suggested are those 
-in or below the directory from where gedit was started. 
+for files to open. if filebrowser is NOT used,  The files suggested are those
+in or below the directory from where gedit was started.
 
-You can enter text or use arrow keys to select the file, 
+You can enter text or use arrow keys to select the file,
 and then hit enter to open that file.
 If the file is already open, Gedit will switch to the proper tab.
 Escape will close the dialog.
 This plugin uses 'find' and 'grep' tools. You can modify the actual
-search command by editing snapopen.py and look for lines around 
+search command by editing snapopen.py and look for lines around
 	cmd = "find ...
 
-For more information, visit my blog: http://www.upperbound.net/
-Or the project page: http://github.com/MadsBuus/gedit-snapopen-plugin
+http://github.com/MadsBuus/gedit-snapopen-plugin
 
