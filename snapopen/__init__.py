@@ -47,7 +47,7 @@ class SnapOpenPluginInstance:
         self._action_group.add_actions([
             ("SnapOpenAction", Gtk.STOCK_OPEN, "Snap open...",
              '<Ctrl><Alt>O', "Open file by autocomplete",
-             lambda a, b: self.on_snapopen_action())
+             lambda a: self.on_snapopen_action())
         ])
 
         manager.insert_action_group(self._action_group)
